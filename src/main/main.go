@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"mysqlmanager"
+	"muxrouter"
 	"net/http"
 	"strings"
 )
@@ -55,6 +55,10 @@ func handel(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	r := muxrouter.MuxRouterInit()
+	r.GetRequest("/articles/{id}", nil)
+	fmt.Print(r)
 	//r := mux.NewRouter()
 	//r.HandleFunc("/", handel)
 	//r.HandleFunc("/products", handel).Methods("POST")
@@ -92,7 +96,7 @@ func main() {
 	//
 	//http.ListenAndServe(":3000", r)
 
-	mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
-	fmt.Println(mysqlmanager)
-	fmt.Println("\n")
+	//mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
+	//fmt.Println(mysqlmanager)
+	//fmt.Println("\n")
 }
