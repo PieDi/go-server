@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"github.com/gorilla/mux"
+	"mysqlmanager"
 	"net/http"
 	"strings"
 )
@@ -40,11 +41,58 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, htmlStr) //这个写入到w的是输出到客户端的
 }
 
+func handel(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, r.URL.Path)
+	vars := mux.Vars(r)
+	id := vars["id"]
+	fmt.Println(id)
+	queryVals := r.URL.Query()
+	param, ok := queryVals["surname"]
+	if ok {
+		fmt.Println(queryVals, param)
+	}
+}
 
 func main() {
-	http.HandleFunc("/", sayhelloName) //设置访问的路由
-	err := http.ListenAndServe(":10009", nil) //设置监听的端口
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	//r := mux.NewRouter()
+	//r.HandleFunc("/", handel)
+	//r.HandleFunc("/products", handel).Methods("POST")
+	//r.HandleFunc("/articles", handel)
+	//r.HandleFunc("/articles/{id}", handel).Methods("GET")
+	//r.HandleFunc("/authors", handel).Queries("surname", "{surname}")
+	//err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	//	pathTemplate, err := route.GetPathTemplate()
+	//	if err == nil {
+	//		fmt.Println("ROUTE:", pathTemplate)
+	//	}
+	//	pathRegexp, err := route.GetPathRegexp()
+	//	if err == nil {
+	//		fmt.Println("Path regexp:", pathRegexp)
+	//	}
+	//	queriesTemplates, err := route.GetQueriesTemplates()
+	//	if err == nil {
+	//		fmt.Println("Queries templates:", strings.Join(queriesTemplates, ","))
+	//	}
+	//	queriesRegexps, err := route.GetQueriesRegexp()
+	//	if err == nil {
+	//		fmt.Println("Queries regexps:", strings.Join(queriesRegexps, ","))
+	//	}
+	//	methods, err := route.GetMethods()
+	//	if err == nil {
+	//		fmt.Println("Methods:", strings.Join(methods, ","))
+	//	}
+	//	fmt.Println()
+	//	return nil
+	//})
+	//
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//
+	//http.ListenAndServe(":3000", r)
+
+	mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
+	fmt.Println(mysqlmanager)
+	fmt.Println("\n")
 }
