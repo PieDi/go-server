@@ -57,8 +57,10 @@ func handel(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	r := muxrouter.MuxRouterInit()
-	r.GetRequest("/articles/{id}", nil)
-	fmt.Print(r)
+	//r.GetRequest("/articles/{id}", nil)
+	//fmt.Print(r)
+	r.PostRequest("/login")
+
 	//r := mux.NewRouter()
 	//r.HandleFunc("/", handel)
 	//r.HandleFunc("/products", handel).Methods("POST")

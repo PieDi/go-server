@@ -39,7 +39,7 @@ func ShareMysqlManager(dbname, tname string) *MysqlManager  {
 			panic(useErr)
 		}
 
-		_, tErr := db.Exec(fmt.Sprintf("create table if not exists %s (id int primary key, number char(9), name char(10))", tname))
+		_, tErr := db.Exec(fmt.Sprintf("create table if not exists %s (id int primary key, password TEXT, phoneNum TEXT, nickName TEXT)", tname))
 		if tErr != nil {
 			fmt.Println("数据库中建表失败")
 			panic(tErr)

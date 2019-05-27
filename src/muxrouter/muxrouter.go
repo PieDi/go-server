@@ -33,7 +33,7 @@ func (r MuxRouter) GetRequest(path string, params map[string]interface{}) {
 	http.ListenAndServe(":3000", r.Router)
 }
 
-func (r MuxRouter) PostRequest(path string, params map[string]interface{}) {
+func (r MuxRouter) PostRequest(path string) {
 	r.Router.HandleFunc(path, postHandel).Methods("POST")
 	http.ListenAndServe(":3000", r.Router)
 }
@@ -53,18 +53,41 @@ func getHandel(w http.ResponseWriter, r *http.Request) {
 }
 
 func postHandel(w http.ResponseWriter, r *http.Request)  {
-	vars := mux.Vars(r)
-	servicename := vars["servicename"] // 路径中 {} 参数
 
-	// parse JSON body
-	var req map[string]interface{}
-	body, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(body, &req)
-	servicetype := req["servicetype"].(string)
+	rHeader := r.Header
+	var contentType string
+	if len(rHeader["Content-Type"]) > 0 {
+		contentType = rHeader["Content-Type"][0]
+	}
+	var reqParams map[string]interface{}
+	var body []byte
+	var phoneNum, nickName, password string
+	//var err error
+	if contentType == "multipart/form-data" {
+		// form-data 请求
+		//r.ParseMultipartForm(32<<20)
+		aa, _ := r.MultipartReader()
+		fmt.Println(aa)
+		phoneNum = r.FormValue("phoneNum")
+		nickName = r.PostFormValue("nickName")
+		password = r.PostFormValue("password")
+		fmt.Println(phoneNum, nickName, password, r.Form)
+	} else if contentType == "application/json" {
+		// application/json 请求
+		body, _ = ioutil.ReadAll(r.Body)
+		json.Unmarshal(body, &reqParams)
+		fmt.Println(reqParams)
+		phoneNum = reqParams["phoneNum"].(string)
+		nickName = reqParams["nickName"].(string)
+		password = reqParams["password"].(string)
+	}
 
+	var res map[string]interface{}
+	if len(password) > 0 {
+		res = map[string]interface{}{"result": 0, "nickName": nickName, "type": phoneNum}
+	}
 	// composite response body
-	var res = map[string]string{"result":"succ", "name":servicename, "type":servicetype}
 	response, _ := json.Marshal(res)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", contentType)
 	w.Write(response)
 }
