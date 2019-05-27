@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type MuxRouter struct {
@@ -66,8 +67,6 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	if contentType == "multipart/form-data" {
 		// form-data 请求
 		//r.ParseMultipartForm(32<<20)
-		aa, _ := r.MultipartReader()
-		fmt.Println(aa)
 		phoneNum = r.FormValue("phoneNum")
 		nickName = r.PostFormValue("nickName")
 		password = r.PostFormValue("password")
@@ -80,8 +79,27 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		phoneNum = reqParams["phoneNum"].(string)
 		nickName = reqParams["nickName"].(string)
 		password = reqParams["password"].(string)
+	} else if contentType == "application/x-www-form-urlencoded" {
+		body := make([]byte, r.ContentLength)
+		r.Body.Read(body)
+		fmt.Println(string(body))
+		params := strings.Split(string(body), "&")
+		for _, str := range params {
+			key := strings.Split(str, "=")[0]
+			value := strings.Split(str, "=")[1]
+			switch key {
+			case "phoneNum":
+				phoneNum = value
+				break
+			case "nickName":
+				nickName = value
+				break
+			case "password":
+				password = value
+				break
+			}
+		}
 	}
-
 	var res map[string]interface{}
 	if len(password) > 0 {
 		res = map[string]interface{}{"result": 0, "nickName": nickName, "type": phoneNum}
