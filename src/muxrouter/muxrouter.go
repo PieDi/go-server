@@ -60,6 +60,7 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	if len(rHeader["Content-Type"]) > 0 {
 		contentType = rHeader["Content-Type"][0]
 	}
+	fmt.Println(contentType)
 	var reqParams map[string]interface{}
 	var body []byte
 	var phoneNum, nickName, password string
@@ -67,10 +68,12 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	if contentType == "multipart/form-data" {
 		// form-data 请求
 		//r.ParseMultipartForm(32<<20)
+		r.ParseMultipartForm(32<<20)
 		phoneNum = r.FormValue("phoneNum")
 		nickName = r.PostFormValue("nickName")
 		password = r.PostFormValue("password")
-		fmt.Println(phoneNum, nickName, password, r.Form)
+		aa, bb, _ := r.FormFile("phoneNum")
+		fmt.Println(phoneNum, nickName, password,"\n", aa, bb)
 	} else if contentType == "application/json" {
 		// application/json 请求
 		body, _ = ioutil.ReadAll(r.Body)
@@ -80,10 +83,10 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		nickName = reqParams["nickName"].(string)
 		password = reqParams["password"].(string)
 	} else if contentType == "application/x-www-form-urlencoded" {
-		body := make([]byte, r.ContentLength)
-		r.Body.Read(body)
-		fmt.Println(string(body))
-		params := strings.Split(string(body), "&")
+		reBody := make([]byte, r.ContentLength)
+		r.Body.Read(reBody)
+		fmt.Println(string(reBody))
+		params := strings.Split(string(reBody), "&")
 		for _, str := range params {
 			key := strings.Split(str, "=")[0]
 			value := strings.Split(str, "=")[1]
