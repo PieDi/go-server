@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 type MuxRouter struct {
@@ -60,21 +59,11 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	if len(rHeader["Content-Type"]) > 0 {
 		contentType = rHeader["Content-Type"][0]
 	}
-	fmt.Println(contentType)
 	var reqParams map[string]interface{}
 	var body []byte
 	var phoneNum, nickName, password string
 	//var err error
-	if contentType == "multipart/form-data" {
-		// form-data 请求
-		//r.ParseMultipartForm(32<<20)
-		r.ParseMultipartForm(32<<20)
-		phoneNum = r.FormValue("phoneNum")
-		nickName = r.PostFormValue("nickName")
-		password = r.PostFormValue("password")
-		aa, bb, _ := r.FormFile("phoneNum")
-		fmt.Println(phoneNum, nickName, password,"\n", aa, bb)
-	} else if contentType == "application/json" {
+	if contentType == "application/json" {
 		// application/json 请求
 		body, _ = ioutil.ReadAll(r.Body)
 		json.Unmarshal(body, &reqParams)
@@ -83,6 +72,22 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		nickName = reqParams["nickName"].(string)
 		password = reqParams["password"].(string)
 	} else if contentType == "application/x-www-form-urlencoded" {
+		fmt.Println("application/x-www-form-urlencoded 请求")
+		/*  1、
+		r.ParseForm()
+		formDara := r.Form
+		phoneNum = formDara["phoneNum"][0]
+		nickName = formDara["nickName"][0]
+		password = formDara["password"][0]
+		*/
+
+		/* 2 */
+		phoneNum = r.PostFormValue("phoneNum")
+		nickName = r.PostFormValue("nickName")
+		password = r.PostFormValue("password")
+
+
+		/* 3、
 		reBody := make([]byte, r.ContentLength)
 		r.Body.Read(reBody)
 		fmt.Println(string(reBody))
@@ -102,6 +107,24 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 				break
 			}
 		}
+		*/
+	} else {
+		// form-data 请求
+		fmt.Println("form-data 请求")
+		UploadHandler(w, r)
+		/*
+		r.ParseMultipartForm(32<<20)
+		user := r.Form.Get("user")
+		password := r.Form.Get("password")
+		file, handler, err := r.FormFile("uploadfile")
+		if err != nil {
+			fmt.Println(err, "--------1------------")//上传错误
+		}
+		defer file.Close()
+
+		fmt.Println(user, password, handler.Filename) //test 123456 json.zip
+		*/
+
 	}
 	var res map[string]interface{}
 	if len(password) > 0 {

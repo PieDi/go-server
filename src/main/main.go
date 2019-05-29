@@ -58,7 +58,6 @@ func main() {
 
 	r := muxrouter.MuxRouterInit()
 	//r.GetRequest("/articles/{id}", nil)
-	//fmt.Print(r)
 	r.PostRequest("/login")
 
 	//r := mux.NewRouter()
@@ -101,4 +100,11 @@ func main() {
 	//mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
 	//fmt.Println(mysqlmanager)
 	//fmt.Println("\n")
+
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
