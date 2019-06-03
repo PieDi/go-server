@@ -39,7 +39,7 @@ func ShareMysqlManager(dbname, tname string) *MysqlManager  {
 			panic(useErr)
 		}
 
-		_, tErr := db.Exec(fmt.Sprintf("create table if not exists %s (id int primary key, password TEXT, phoneNum TEXT, nickName TEXT)", tname))
+		_, tErr := db.Exec(fmt.Sprintf("create table if not exists %s (id int primary key AUTO_INCREMENT, password TEXT, phoneNum TEXT, nickName TEXT) AUTO_INCREMENT = 10000", tname))
 		if tErr != nil {
 			fmt.Println("数据库中建表失败")
 			panic(tErr)
@@ -53,11 +53,13 @@ func ShareMysqlManager(dbname, tname string) *MysqlManager  {
 }
 
 
-func (mysql *MysqlManager) Insert (params []map[string]interface{}) {
+func (mysql *MysqlManager) Insert (params map[string]interface{}) {
 	defer Manger.DB.Close()
 	tx, _ := Manger.DB.Begin()
-	for k, v := range params{
-		fmt.Println(k, v)
+	queryStr := fmt.Sprintf("INSERT INTO %s (password, phoneNum, nickName) values(?, ?, ?)", Tname)
+	_, err := tx.Exec(queryStr, params["password"], params["phoneNum"], params["nickName"])
+	if err != nil {
+		fmt.Println("数据插入失败", err)
 	}
 	tx.Commit()
 }

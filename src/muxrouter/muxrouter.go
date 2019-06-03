@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
+	"mysqlmanager"
 	"net/http"
 )
 
@@ -59,6 +60,7 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	if len(rHeader["Content-Type"]) > 0 {
 		contentType = rHeader["Content-Type"][0]
 	}
+	fmt.Println(contentType)
 	var reqParams map[string]interface{}
 	var body []byte
 	var phoneNum, nickName, password string
@@ -71,6 +73,10 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		phoneNum = reqParams["phoneNum"].(string)
 		nickName = reqParams["nickName"].(string)
 		password = reqParams["password"].(string)
+		mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
+
+		mysqlmanager.Insert(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password})
+
 	} else if contentType == "application/x-www-form-urlencoded" {
 		fmt.Println("application/x-www-form-urlencoded 请求")
 		/*  1、
@@ -111,7 +117,8 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	} else {
 		// form-data 请求
 		fmt.Println("form-data 请求")
-		UploadHandler(w, r)
+		//UploadHandler(w, r)
+		UrlHandler(w, r)
 		/*
 		r.ParseMultipartForm(32<<20)
 		user := r.Form.Get("user")
