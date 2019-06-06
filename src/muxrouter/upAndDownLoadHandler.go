@@ -90,9 +90,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func UrlHandler(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Println(r.FormValue("url"))
 	//key url
-	r.ParseMultipartForm(32 << 20)
-	fmt.Println(r.PostFormValue("url"))
+	//r.ParseMultipartForm(32 << 20)
+	//fmt.Println(r.PostFormValue("url"))
 
 	//resp, err := http.Get(url)
 	//if err != nil {

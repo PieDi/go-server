@@ -57,9 +57,11 @@ func handel(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	r := muxrouter.MuxRouterInit()
-	//r.GetRequest("/articles/{id}", nil)
-	r.PostRequest("/login")
+	go r.PostRequest("/regist", 3000)
+	go r.PostRequest("/login", 3000)
+	select {
 
+	}
 	//r := mux.NewRouter()
 	//r.HandleFunc("/", handel)
 	//r.HandleFunc("/products", handel).Methods("POST")
@@ -96,10 +98,6 @@ func main() {
 	//}
 	//
 	//http.ListenAndServe(":3000", r)
-
-	//mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
-	//fmt.Println(mysqlmanager)
-	//fmt.Println("\n")
 
 }
 

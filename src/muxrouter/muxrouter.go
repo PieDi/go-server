@@ -34,9 +34,9 @@ func (r MuxRouter) GetRequest(path string, params map[string]interface{}) {
 	http.ListenAndServe(":3000", r.Router)
 }
 
-func (r MuxRouter) PostRequest(path string) {
+func (r MuxRouter) PostRequest(path string, port int) {
 	r.Router.HandleFunc(path, postHandel).Methods("POST")
-	http.ListenAndServe(":3000", r.Router)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), r.Router)
 }
 
 
@@ -60,7 +60,6 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	if len(rHeader["Content-Type"]) > 0 {
 		contentType = rHeader["Content-Type"][0]
 	}
-	fmt.Println(contentType)
 	var reqParams map[string]interface{}
 	var body []byte
 	var phoneNum, nickName, password string
@@ -69,14 +68,21 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		// application/json 请求
 		body, _ = ioutil.ReadAll(r.Body)
 		json.Unmarshal(body, &reqParams)
-		fmt.Println(reqParams)
 		phoneNum = reqParams["phoneNum"].(string)
 		nickName = reqParams["nickName"].(string)
 		password = reqParams["password"].(string)
 		mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
+		switch r.URL.Path {
+		case "/login":
+			mysqlmanager.Login(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password}, func(json string) {
+				fmt.Println(json)
+			})
 
-		mysqlmanager.Insert(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password})
-
+		case "/regist":
+			mysqlmanager.Regist(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password}, func(json string) {
+				fmt.Println(json)
+			})
+		}
 	} else if contentType == "application/x-www-form-urlencoded" {
 		fmt.Println("application/x-www-form-urlencoded 请求")
 		/*  1、
