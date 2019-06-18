@@ -62,6 +62,8 @@ func main() {
 	select {
 
 	}
+
+	//fmt.Printf("%p", &cUser)
 	//r := mux.NewRouter()
 	//r.HandleFunc("/", handel)
 	//r.HandleFunc("/products", handel).Methods("POST")
@@ -101,8 +103,3 @@ func main() {
 
 }
 
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
-	"mysqlmanager"
 	"net/http"
+	"user"
 )
 
 type MuxRouter struct {
@@ -68,20 +68,17 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		// application/json 请求
 		body, _ = ioutil.ReadAll(r.Body)
 		json.Unmarshal(body, &reqParams)
-		phoneNum = reqParams["phoneNum"].(string)
-		nickName = reqParams["nickName"].(string)
-		password = reqParams["password"].(string)
-		mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
+		//mysqlmanager := mysqlmanager.ShareMysqlManager("goMysqlTest", "goMysqlTable")
 		switch r.URL.Path {
 		case "/login":
-			mysqlmanager.Login(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password}, func(json string) {
-				fmt.Println(json)
+			user.Login(reqParams, func(respJson map[string]interface{}) {
+				fmt.Println(respJson)
 			})
 
 		case "/regist":
-			mysqlmanager.Regist(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password}, func(json string) {
-				fmt.Println(json)
-			})
+			//mysqlmanager.Regist(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password}, func(json string) {
+			//	fmt.Println(json)
+			//})
 		}
 	} else if contentType == "application/x-www-form-urlencoded" {
 		fmt.Println("application/x-www-form-urlencoded 请求")
@@ -123,8 +120,8 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	} else {
 		// form-data 请求
 		fmt.Println("form-data 请求")
-		//UploadHandler(w, r)
-		UrlHandler(w, r)
+		UploadHandler(w, r)
+		//UrlHandler(w, r)
 		/*
 		r.ParseMultipartForm(32<<20)
 		user := r.Form.Get("user")

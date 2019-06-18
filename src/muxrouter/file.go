@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-var storage = "../image"
+var storage = "./image"
 func GetPathByMd5(imageId string) string {
 	return fmt.Sprintf("%s/%s/%s/%s/%s.png", storage, imageId[0:8], imageId[8:16], imageId[16:24], imageId[24:32])
 }
