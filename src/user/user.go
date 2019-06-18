@@ -93,16 +93,35 @@ func Insert (mysql *mysqlmanager.MysqlManager, params map[string]interface{}, ca
 		fmt.Println("使用数据库失败")
 		panic(useErr)
 	}
-
 	tx, _ := mysql.DB.Begin()
 	queryStr := fmt.Sprintf("INSERT INTO %s (password, phoneNum, nickName) values(?, ?, ?)", mysql.Tname)
 	_, err := tx.Exec(queryStr, params["password"], params["phoneNum"], params["nickName"])
 	phoneNum := params["phoneNum"].(string)
 	nickName := params["nickName"].(string)
 	if err != nil {
-		callBack(map[string]interface{}{"resultCode": "100", "msg": "注册失败", "phoneNum": phoneNum, "nickName": nickName})
+		response = map[string]interface{}{"resultCode": "100", "msg": "注册失败", "phoneNum": phoneNum, "nickName": nickName}
 		fmt.Println("数据插入失败", err)
 	}
-	callBack(map[string]interface{}{"resultCode": "000", "msg": "注册成功", "phoneNum": phoneNum, "nickName": nickName})
+	response = map[string]interface{}{"resultCode": "000", "msg": "注册成功", "phoneNum": phoneNum, "nickName": nickName}
+	callBack(response)
 	tx.Commit()
+}
+
+// 用户删除
+func Delete(mysql *mysqlmanager.MysqlManager, updateKey, updateValue, whereKey, whereValue string, callBack func(json map[string]interface{}))  {
+	defer mysql.DB.Close()
+	// 在插入数据时可能 数据库已经关闭
+	_, useErr := mysql.DB.Exec("USE " + mysql.DBname)
+	if useErr != nil {
+		fmt.Println("使用数据库失败")
+		panic(useErr)
+	}
+	tx, _ := mysql.DB.Begin()
+	deleteStr := fmt.Sprintf("DELETE %s set %s=? where %s=?", mysql.Tname, updateKey, whereKey)
+	_, err := tx.Exec(deleteStr, updateValue, whereValue)
+	if err != nil {
+		response = map[string]interface{}{"resultCode": "100", "msg": "删除用户失败"}
+	}
+	response = map[string]interface{}{"resultCode": "000", "msg": "删除用户成功"}
+	callBack(response)
 }
