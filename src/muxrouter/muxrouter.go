@@ -20,7 +20,7 @@ func MuxRouterInit() MuxRouter {
 	return MuxRouter
 }
 
-func (r MuxRouter) GetRequest(path string, params map[string]interface{}) {
+func (r MuxRouter) GetRequest(path string, port int, params map[string]interface{}) {
 
 	var getParams = ""
 	for k, v := range params{
@@ -31,7 +31,7 @@ func (r MuxRouter) GetRequest(path string, params map[string]interface{}) {
 	}
 	fmt.Println(path)
 	r.Router.HandleFunc(path, getHandel).Methods("GET")
-	http.ListenAndServe(":3000", r.Router)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), r.Router)
 }
 
 func (r MuxRouter) PostRequest(path string, port int) {
@@ -74,11 +74,14 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 			user.Login(reqParams, func(respJson map[string]interface{}) {
 				fmt.Println(respJson)
 			})
-
 		case "/regist":
-			//mysqlmanager.Regist(map[string]interface{}{"phoneNum": phoneNum, "nickName": nickName, "password": password}, func(json string) {
-			//	fmt.Println(json)
-			//})
+			user.Regist(reqParams, func(respJson map[string]interface{}) {
+				fmt.Println(respJson)
+			})
+		case "/logout":
+			user.Logout(reqParams, func(respJson map[string]interface{}) {
+				fmt.Println(respJson)
+			})
 		}
 	} else if contentType == "application/x-www-form-urlencoded" {
 		fmt.Println("application/x-www-form-urlencoded 请求")

@@ -22,7 +22,6 @@ func Logout(params map[string]interface{}, callBack func(respJson map[string]int
 						callBack(response)
 					}
 				})
-
 			} else {
 				response["resultCode"] = "100"
 				response["msg"] = "未登录"
