@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	_ "crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	_ "encoding/base64"
 	"encoding/pem"
 	"errors"
@@ -40,7 +41,7 @@ func (Rsa *Rsa)RsaEnceypt(orig string) string {
 	if encErr != nil {
 		panic(encErr)
 	}
-	return string(encByte)
+	return base64.StdEncoding.EncodeToString(encByte)
 }
 
 // 解密
@@ -55,8 +56,9 @@ func (Rsa *Rsa) RsaDecrypt(crypt string) string {
 	if err != nil {
 		panic(err)
 	}
+	cryptByte, _ := base64.StdEncoding.DecodeString(crypt)
 	// 解密
-	decByte, decErr := rsa.DecryptPKCS1v15(rand.Reader, priv, []byte(crypt))
+	decByte, decErr := rsa.DecryptPKCS1v15(rand.Reader, priv, cryptByte)
 	if decErr != nil {
 		panic(decErr)
 	}

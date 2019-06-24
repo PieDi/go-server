@@ -78,18 +78,44 @@ DOkEzNP0B8XKm+Lxy4giwwR5LJQTANkqe4w/d9u129bRhTu/SUzSUIr65zZ/s6TU
 GQD6QzKY1Y8xS+FoQQIDAQAB
 -----END PUBLIC KEY-----`
 func main() {
-	//aesCFB := en_decrypt.InstanceAesCFB("6368616e676520746869732070617373")
+
+	//aesCFB := en_decrypt.InstanceAesCFB("6368616e67652074")
 	//encStr := aesCFB.CFBAesEncrypt("么么哒")
 	//fmt.Println(encStr)
-	//
-	//decStr := aesCFB.CFBAesDecrypter(encStr)
-	//fmt.Println(decStr)
+	//fmt.Println(aesCFB.CFBAesDecrypter(encStr))
 
-	rsa := en_decrypt.InstanceRsa(privateKey, publicKey)
-	rsaEncStr := rsa.RsaEnceypt("么么哒")
-	fmt.Println(rsaEncStr)
-	rsaDecStr := rsa.RsaDecrypt(rsaEncStr)
-	fmt.Println(rsaDecStr)
+	//aesCBC := en_decrypt.InstanceAesCBC("6368616e67652074")
+	//aesCBCStr := aesCBC.CBCAesEncrypt("么么哒")
+	//fmt.Println(aesCBCStr)
+	//fmt.Println(aesCBC.CBCAesDecrypt(aesCBCStr))
+
+	//aesECB := en_decrypt.InstanceAesECB("6368616e676520746368616e67652074")
+	//aesEncStr := aesECB.ECBAesEncrypt("么么哒")
+	//fmt.Println(aesEncStr)
+	//fmt.Println(aesECB.ECBAesDecrypter(aesEncStr))
+
+
+	//des := en_decrypt.InstanceDes("sasasasa")
+	//	//desStr := des.DesEncrypt("么么哒")
+	//	//fmt.Println(desStr)
+	//	//fmt.Println(des.DesDecrypt(desStr))
+
+	triDes := en_decrypt.InstanceTripDes("123456789012345678901234")
+	triDesStr := triDes.TripleDesEncrypt("么么哒")
+	fmt.Println(triDesStr)
+	fmt.Println(triDes.TripleDesDecrypt(triDesStr))
+
+
+
+
+	//rsa := en_decrypt.InstanceRsa(privateKey, publicKey)
+	//rsaEncStr := rsa.RsaEnceypt("么么哒")
+	//fmt.Println(rsaEncStr)
+	//rsaDecStr := rsa.RsaDecrypt(rsaEncStr)
+	//fmt.Println(rsaDecStr)
+
+
+
 	r := muxrouter.MuxRouterInit()
 	go r.PostRequest("/regist", 3000)
 	go r.PostRequest("/login", 3000)

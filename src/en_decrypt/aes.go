@@ -1,7 +1,6 @@
 package en_decrypt
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -64,18 +63,6 @@ func (aesCBC *AesCBC) CBCAesDecrypt(cryted string) string {
 	orig = PKCS7UnPadding(orig)
 	return string(orig)
 }
-//补码
-func PKCS7Padding(ciphertext []byte, blocksize int) []byte {
-	padding := blocksize - len(ciphertext)%blocksize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
-}
-//去码
-func PKCS7UnPadding(origData []byte) []byte {
-	length := len(origData)
-	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
-}
 
 
 /*
@@ -93,9 +80,8 @@ func InstanceAesCFB(key string) *AesCFB {
 
 // 加密
 func (aesCFB *AesCFB) CFBAesEncrypt(orig string) string {
-	key, _ := hex.DecodeString(aesCFB.KEY)
 	plaintext := []byte(orig)
-	block, err := aes.NewCipher(key)
+	block, err := aes.NewCipher([]byte(aesCFB.KEY))
 	if err != nil {
 		panic(err)
 	}
@@ -106,14 +92,13 @@ func (aesCFB *AesCFB) CFBAesEncrypt(orig string) string {
 	}
 	stream := cipher.NewCFBEncrypter(block, iv)
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
-	return fmt.Sprintf("%x", ciphertext)
+	return hex.EncodeToString(ciphertext)
 }
 
 // 解密
 func (aesCFB *AesCFB) CFBAesDecrypter(cryted string) string {
-	key, _ := hex.DecodeString(aesCFB.KEY)
 	ciphertext, _ := hex.DecodeString(cryted)
-	block, err := aes.NewCipher(key)
+	block, err := aes.NewCipher([]byte(aesCFB.KEY))
 	if err != nil {
 		panic(err)
 	}
@@ -125,4 +110,60 @@ func (aesCFB *AesCFB) CFBAesDecrypter(cryted string) string {
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(ciphertext, ciphertext)
 	return fmt.Sprintf("%s", ciphertext)
+}
+
+
+/*
+* ECB
+*/
+type AesECB struct {
+	KEY string
+}
+
+var AESECB *AesECB
+func InstanceAesECB(key string) *AesECB {
+	AESECB := &AesECB{key}
+	return AESECB
+}
+
+func (aesECB *AesECB) ECBAesEncrypt(orig string) string {
+
+	origData := []byte(orig)
+	// 分组秘钥
+	block, err := aes.NewCipher([]byte(aesECB.KEY))
+	if err != nil{
+		panic(err)
+	}
+	// 获取秘钥块的长度
+	blockSize := block.BlockSize()
+	// 补全码
+	origData = PKCS7Padding(origData, blockSize)
+
+	ciphertext := make([]byte, 0)
+	text := make([]byte, 16)
+	for len(origData) > 0 {
+		// 每次运算一个block
+		block.Encrypt(text, origData)
+		origData = origData[aes.BlockSize:]
+		ciphertext = append(ciphertext, text...)
+	}
+	return base64.StdEncoding.EncodeToString(ciphertext)
+}
+
+// 解密
+func (aesECB *AesECB) ECBAesDecrypter(cryted string) string {
+
+	// 转成字节数组
+	crytedByte, _ := base64.StdEncoding.DecodeString(cryted)
+	// 分组秘钥
+	block, _ := aes.NewCipher([]byte(aesECB.KEY))
+	plaintext := make([]byte, 0)
+	text := make([]byte, 16)
+	for len(crytedByte) > 0 {
+		block.Decrypt(text, crytedByte)
+		crytedByte = crytedByte[aes.BlockSize:]
+		plaintext = append(plaintext, text...)
+	}
+	return string(PKCS7UnPadding(plaintext))
+
 }
