@@ -105,9 +105,6 @@ func main() {
 	fmt.Println(triDesStr)
 	fmt.Println(triDes.TripleDesDecrypt(triDesStr))
 
-
-
-
 	//rsa := en_decrypt.InstanceRsa(privateKey, publicKey)
 	//rsaEncStr := rsa.RsaEnceypt("么么哒")
 	//fmt.Println(rsaEncStr)
