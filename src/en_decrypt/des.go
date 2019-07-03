@@ -70,7 +70,6 @@ func InstanceTripDes(key string) *TripDes  {
 	return TRIPDES
 }
 
-
 // 3DES加密
 func (tripDes *TripDes) TripleDesEncrypt(orig string) string {
 	key := []byte(tripDes.KEY)
