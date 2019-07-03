@@ -28,15 +28,16 @@ func InstanceAesCBC(key string) *AesCBC {
 func (aesCBC *AesCBC) CBCAesEncrypt(orig string) string {
 	// 转成字节数组
 	origData := []byte(orig)
-	k := []byte(aesCBC.KEY)
+	key := []byte(aesCBC.KEY)
+	iv := []byte(aesCBC.KEY)
 	// 分组秘钥
-	block, _ := aes.NewCipher(k)
+	block, _ := aes.NewCipher(key)
 	// 获取秘钥块的长度
 	blockSize := block.BlockSize()
 	// 补全码
-	origData = PKCS7Padding(origData, blockSize)
+	origData = PKCS5Padding(origData, blockSize)
 	// 加密模式
-	blockMode := cipher.NewCBCEncrypter(block, k[:blockSize])
+	blockMode := cipher.NewCBCEncrypter(block, iv[:blockSize])
 	// 创建数组
 	cryted := make([]byte, len(origData))
 	// 加密
@@ -48,19 +49,20 @@ func (aesCBC *AesCBC) CBCAesEncrypt(orig string) string {
 func (aesCBC *AesCBC) CBCAesDecrypt(cryted string) string {
 	// 转成字节数组
 	crytedByte, _ := base64.StdEncoding.DecodeString(cryted)
-	k := []byte(aesCBC.KEY)
+	key := []byte(aesCBC.KEY)
+	iv := []byte(aesCBC.KEY)
 	// 分组秘钥
-	block, _ := aes.NewCipher(k)
+	block, _ := aes.NewCipher(key)
 	// 获取秘钥块的长度
 	blockSize := block.BlockSize()
 	// 加密模式
-	blockMode := cipher.NewCBCDecrypter(block, k[:blockSize])
+	blockMode := cipher.NewCBCDecrypter(block, iv[:blockSize])
 	// 创建数组
 	orig := make([]byte, len(crytedByte))
 	// 解密
 	blockMode.CryptBlocks(orig, crytedByte)
 	// 去补全码
-	orig = PKCS7UnPadding(orig)
+	orig = PKCS5UnPadding(orig)
 	return string(orig)
 }
 
@@ -138,7 +140,6 @@ func (aesECB *AesECB) ECBAesEncrypt(orig string) string {
 	blockSize := block.BlockSize()
 	// 补全码
 	origData = PKCS7Padding(origData, blockSize)
-
 	ciphertext := make([]byte, 0)
 	text := make([]byte, 16)
 	for len(origData) > 0 {

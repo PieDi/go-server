@@ -6,6 +6,7 @@ import (
 	"crypto/des"
 	"encoding/base64"
 	"errors"
+	"fmt"
 )
 
 type Des struct {
@@ -21,14 +22,16 @@ func InstanceDes(key string) *Des  {
 
 // DES加密
 func (Des *Des) DesEncrypt(orig string) string {
-	block, err := des.NewCipher([]byte(Des.KEY))
+	key := []byte(Des.KEY)
+	iv := []byte(Des.KEY)
+	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
 	origData := []byte(orig)
 	origData = PKCS5Padding(origData, block.BlockSize())
 	// origData = ZeroPadding(origData, block.BlockSize())
-	blockMode := cipher.NewCBCEncrypter(block, []byte(Des.KEY))
+	blockMode := cipher.NewCBCEncrypter(block, iv)
 	crypted := make([]byte, len(origData))
 	// 根据CryptBlocks方法的说明，如下方式初始化crypted也可以
 	// crypted := origData
@@ -38,11 +41,13 @@ func (Des *Des) DesEncrypt(orig string) string {
 
 // 解密
 func (Des *Des) DesDecrypt(crypted string) string {
-	block, err := des.NewCipher([]byte(Des.KEY))
+	key := []byte(Des.KEY)
+	iv := []byte(Des.KEY)
+	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(errors.New("des key error"))
 	}
-	blockMode := cipher.NewCBCDecrypter(block, []byte(Des.KEY))
+	blockMode := cipher.NewCBCDecrypter(block, iv)
 	crypteByte, _ := base64.StdEncoding.DecodeString(crypted)
 	cryptedData := make([]byte, len(crypteByte))
 	// origData := crypted
@@ -68,14 +73,17 @@ func InstanceTripDes(key string) *TripDes  {
 
 // 3DES加密
 func (tripDes *TripDes) TripleDesEncrypt(orig string) string {
-	block, err := des.NewTripleDESCipher([]byte(tripDes.KEY))
+	key := []byte(tripDes.KEY)
+	iv := []byte(tripDes.KEY)
+
+	block, err := des.NewTripleDESCipher(key)
 	if err != nil {
 		panic(err)
 	}
 	origData := []byte(orig)
 	origData = PKCS5Padding(origData, block.BlockSize())
 	// origData = ZeroPadding(origData, block.BlockSize())
-	blockMode := cipher.NewCBCEncrypter(block, []byte(tripDes.KEY)[:8])
+	blockMode := cipher.NewCBCEncrypter(block, iv[:block.BlockSize()])
 	crypted := make([]byte, len(origData))
 	blockMode.CryptBlocks(crypted, origData)
 	return base64.StdEncoding.EncodeToString(crypted)
@@ -83,11 +91,14 @@ func (tripDes *TripDes) TripleDesEncrypt(orig string) string {
 
 // 3DES解密
 func (tripDes *TripDes) TripleDesDecrypt(crypted string) string {
-	block, err := des.NewTripleDESCipher([]byte(tripDes.KEY))
+	key := []byte(tripDes.KEY)
+	iv := []byte(tripDes.KEY)
+
+	block, err := des.NewTripleDESCipher(key)
 	if err != nil {
 		panic(err)
 	}
-	blockMode := cipher.NewCBCDecrypter(block, []byte(tripDes.KEY)[:8])
+	blockMode := cipher.NewCBCDecrypter(block, iv[:block.BlockSize()])
 	crytedByte, _ := base64.StdEncoding.DecodeString(crypted)
 	//crytedByte := []byte(crypted)
 	origData := make([]byte, len(crytedByte))
@@ -102,20 +113,53 @@ func (tripDes *TripDes) TripleDesDecrypt(crypted string) string {
 
 // PKCS7 填充
 func PKCS7Padding(ciphertext []byte, blocksize int) []byte {
-	padding := blocksize - len(ciphertext)%blocksize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
+
+	if blocksize <= 0 {
+		panic(errors.New("invalid blocksize"))
+	}
+	if ciphertext == nil || len(ciphertext) == 0 {
+		panic(errors.New("invalid PKCS7 data (empty or not padded)"))
+	}
+	n := blocksize - (len(ciphertext) % blocksize)
+	fmt.Println(n, len(ciphertext), blocksize)
+	pb := make([]byte, len(ciphertext)+n)
+	copy(pb, ciphertext)
+	copy(pb[len(ciphertext):], bytes.Repeat([]byte{byte(n)}, n))
+	return pb
+
+
+	//padding := blocksize - len(ciphertext)%blocksize
+	//padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	//return append(ciphertext, padtext...)
 }
 
 func PKCS7UnPadding(origData []byte) []byte {
-	length := len(origData)
-	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
+
+	if origData == nil || len(origData) == 0 {
+		panic(errors.New("invalid PKCS7 data (empty or not padded)"))
+	}
+
+	//if len(origData)%block.BlockSize() != 0 {
+	//	panic(errors.New("invalid padding on input"))
+	//}
+
+	c := origData[len(origData)-1]
+	n := int(c)
+	if n == 0 || n > len(origData) {
+		panic(errors.New("invalid padding on input"))
+	}
+	for i := 0; i < n; i++ {
+		if origData[len(origData)-n+i] != c {
+			panic(errors.New("invalid padding on input"))
+		}
+	}
+	return origData[:len(origData)-n]
 }
 
 // PKCS5 填充
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
+	fmt.Println(padding, len(ciphertext), blockSize)
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }

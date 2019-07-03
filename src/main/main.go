@@ -1,60 +1,5 @@
 package main
 
-import (
-	"en_decrypt"
-	"fmt"
-	"github.com/gorilla/mux"
-	"muxrouter"
-	"net/http"
-	"strings"
-)
-
-const htmlStr = `<html>
-<head>
-<title></title>
-</head>
-<body>
-<form action="/login" method="post">
-    用户名:<input type="text" name="username">
-    密码:<input type="password" name="password">
-    <input type="submit" value="登陆">
-</form>
-<select name="fruit">
-<option value="apple">apple</option>
-<option value="pear">pear</option>
-<option value="banane">banane</option>
-</select>
-<input type="checkbox" name="interest" value="football">足球
-<input type="checkbox" name="interest" value="basketball">篮球
-<input type="checkbox" name="interest" value="tennis">网球
-</body>
-</html>`
-
-func sayhelloName(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()  //解析参数，默认是不会解析的
-	fmt.Println(r.Form)  //这些信息是输出到服务器端的打印信息
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Host)
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
-	fmt.Fprintf(w, htmlStr) //这个写入到w的是输出到客户端的
-}
-
-func handel(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, r.URL.Path)
-	vars := mux.Vars(r)
-	id := vars["id"]
-	fmt.Println(id)
-	queryVals := r.URL.Query()
-	param, ok := queryVals["surname"]
-	if ok {
-		fmt.Println(queryVals, param)
-	}
-}
-
 var privateKey  = `-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDfw1/P15GQzGGYvNwVmXIGGxea8Pb2wJcF7ZW7tmFdLSjOItn9
 kvUsbQgS5yxx+f2sAv1ocxbPTsFdRc6yUTJdeQolDOkEzNP0B8XKm+Lxy4giwwR5
@@ -77,6 +22,8 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDfw1/P15GQzGGYvNwVmXIGGxea
 DOkEzNP0B8XKm+Lxy4giwwR5LJQTANkqe4w/d9u129bRhTu/SUzSUIr65zZ/s6TU
 GQD6QzKY1Y8xS+FoQQIDAQAB
 -----END PUBLIC KEY-----`
+
+
 func main() {
 
 	//aesCFB := en_decrypt.InstanceAesCFB("6368616e67652074")
@@ -84,8 +31,9 @@ func main() {
 	//fmt.Println(encStr)
 	//fmt.Println(aesCFB.CFBAesDecrypter(encStr))
 
+	//6368616e67652074
 	//aesCBC := en_decrypt.InstanceAesCBC("6368616e67652074")
-	//aesCBCStr := aesCBC.CBCAesEncrypt("么么哒")
+	//aesCBCStr := aesCBC.CBCAesEncrypt("么么哒-么么哒")
 	//fmt.Println(aesCBCStr)
 	//fmt.Println(aesCBC.CBCAesDecrypt(aesCBCStr))
 
@@ -96,17 +44,14 @@ func main() {
 
 
 	//des := en_decrypt.InstanceDes("sasasasa")
-	//	//desStr := des.DesEncrypt("么么哒")
-	//	//fmt.Println(desStr)
-	//	//fmt.Println(des.DesDecrypt(desStr))
-
-	triDes := en_decrypt.InstanceTripDes("123456789012345678901234")
-	triDesStr := triDes.TripleDesEncrypt("么么哒")
-	fmt.Println(triDesStr)
-	fmt.Println(triDes.TripleDesDecrypt(triDesStr))
-
-
-
+	//desStr := des.DesEncrypt("么么哒-么么哒")
+	//fmt.Println(desStr)
+	//fmt.Println(des.DesDecrypt(desStr))
+	//
+	//triDes := en_decrypt.InstanceTripDes("123456789012345678901234")
+	//triDesStr := triDes.TripleDesEncrypt("么么哒")
+	//fmt.Println(triDesStr)
+	//fmt.Println(triDes.TripleDesDecrypt(triDesStr))
 
 	//rsa := en_decrypt.InstanceRsa(privateKey, publicKey)
 	//rsaEncStr := rsa.RsaEnceypt("么么哒")
@@ -115,14 +60,13 @@ func main() {
 	//fmt.Println(rsaDecStr)
 
 
-
-	r := muxrouter.MuxRouterInit()
-	go r.PostRequest("/regist", 3000)
-	go r.PostRequest("/login", 3000)
-	go r.PostRequest("/logout", 3000)
-	select {
-
-	}
+	//r := muxrouter.MuxRouterInit()
+	//go r.PostRequest("/regist", 3000)
+	//go r.PostRequest("/login", 3000)
+	//go r.PostRequest("/logout", 3000)
+	//select {
+	//
+	//}
 
 	//fmt.Printf("%p", &cUser)
 	//r := mux.NewRouter()
