@@ -62,7 +62,9 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	}
 	var reqParams map[string]interface{}
 	var body []byte
-	var phoneNum, nickName, password string
+	var res map[string]interface{}
+
+
 	//var err error
 	if contentType == "application/json" {
 		// application/json 请求
@@ -88,16 +90,16 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		/*  1、
 		r.ParseForm()
 		formDara := r.Form
-		phoneNum = formDara["phoneNum"][0]
-		nickName = formDara["nickName"][0]
-		password = formDara["password"][0]
+		phoneNum := formDara["phoneNum"][0]
+		nickName := formDara["nickName"][0]
+		password := formDara["password"][0]
 		*/
 
-		/* 2 */
-		phoneNum = r.PostFormValue("phoneNum")
-		nickName = r.PostFormValue("nickName")
-		password = r.PostFormValue("password")
-
+		/*  2、
+		phoneNum := r.PostFormValue("phoneNum")
+		nickName := r.PostFormValue("nickName")
+		password := r.PostFormValue("password")
+		*/
 
 		/* 3、
 		reBody := make([]byte, r.ContentLength)
@@ -139,10 +141,7 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 		*/
 
 	}
-	var res map[string]interface{}
-	if len(password) > 0 {
-		res = map[string]interface{}{"result": 0, "nickName": nickName, "type": phoneNum}
-	}
+
 	// composite response body
 	response, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", contentType)

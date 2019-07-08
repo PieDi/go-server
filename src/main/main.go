@@ -1,5 +1,7 @@
 package main
 
+import "muxrouter"
+
 var privateKey  = `-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDfw1/P15GQzGGYvNwVmXIGGxea8Pb2wJcF7ZW7tmFdLSjOItn9
 kvUsbQgS5yxx+f2sAv1ocxbPTsFdRc6yUTJdeQolDOkEzNP0B8XKm+Lxy4giwwR5
@@ -60,13 +62,13 @@ func main() {
 	//fmt.Println(rsaDecStr)
 
 
-	//r := muxrouter.MuxRouterInit()
-	//go r.PostRequest("/regist", 3000)
-	//go r.PostRequest("/login", 3000)
-	//go r.PostRequest("/logout", 3000)
-	//select {
-	//
-	//}
+	r := muxrouter.MuxRouterInit()
+	go r.PostRequest("/regist", 3000)
+	go r.PostRequest("/login", 3000)
+	go r.PostRequest("/logout", 3000)
+	select {
+
+	}
 
 	//fmt.Printf("%p", &cUser)
 	//r := mux.NewRouter()
@@ -107,4 +109,5 @@ func main() {
 	//http.ListenAndServe(":3000", r)
 
 }
+
 
