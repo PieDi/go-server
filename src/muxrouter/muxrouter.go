@@ -2,11 +2,16 @@ package muxrouter
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"user"
+
+	//"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io/ioutil"
+	//"io/ioutil"
 	"net/http"
-	"user"
+	"time"
+	//"user"
 )
 
 type MuxRouter struct {
@@ -34,9 +39,12 @@ func (r MuxRouter) GetRequest(path string, port int, params map[string]interface
 	http.ListenAndServe(fmt.Sprintf(":%d", port), r.Router)
 }
 
-func (r MuxRouter) PostRequest(path string, port int) {
+func (r MuxRouter) PostRequest(path string, port int) *http.Server{
 	r.Router.HandleFunc(path, postHandel).Methods("POST")
-	http.ListenAndServe(fmt.Sprintf(":%d", port), r.Router)
+	//http.ListenAndServe(fmt.Sprintf(":%d", port), r.Router)
+	server := &http.Server{Addr:fmt.Sprintf(":%d", port), WriteTimeout: time.Second * 3, Handler: r.Router}
+	server.ListenAndServe()
+	return server
 }
 
 
@@ -63,7 +71,6 @@ func postHandel(w http.ResponseWriter, r *http.Request)  {
 	var reqParams map[string]interface{}
 	var body []byte
 	var res map[string]interface{}
-
 
 	//var err error
 	if contentType == "application/json" {

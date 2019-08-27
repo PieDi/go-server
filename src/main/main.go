@@ -1,6 +1,10 @@
 package main
 
-import "muxrouter"
+import (
+	"ConnPool"
+	"fmt"
+	"muxrouter"
+)
 
 var privateKey  = `-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDfw1/P15GQzGGYvNwVmXIGGxea8Pb2wJcF7ZW7tmFdLSjOItn9
@@ -61,14 +65,19 @@ func main() {
 	//rsaDecStr := rsa.RsaDecrypt(rsaEncStr)
 	//fmt.Println(rsaDecStr)
 
-
 	r := muxrouter.MuxRouterInit()
-	go r.PostRequest("/regist", 3000)
-	go r.PostRequest("/login", 3000)
-	go r.PostRequest("/logout", 3000)
-	select {
+	//go r.PostRequest("/regist", 3000)
 
-	}
+	//go r.PostRequest("/logout", 3000)
+	//select {
+	//
+	//}
+
+	cp, _ := ConnPool.NewConnPool(func() (ConnPool.CoonRes, error) {
+		return  r.PostRequest("/login", 3000), nil
+	}, 1)
+
+	fmt.Println(cp.Len())
 
 	//fmt.Printf("%p", &cUser)
 	//r := mux.NewRouter()
